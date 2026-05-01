@@ -84,7 +84,3 @@ No green VERIFY = task not done. No exceptions.
 | Contracts changed without version bump | Halt. Bump version. All affected worktrees re-pin. |
 | Worktree PRs target `dev` directly | Target the integration branch. `dev` is for finished, verified worktrees. |
 | Skipping the agent brief template | Agents that don't re-read brief + contracts at task start commit against stale assumptions. |
-
-## Real-World Reference
-
-See `reference/real-example.md` — the ecommerce-scrape-x402 pipeline rebuild applied this skill across 12 worktrees in 3 phases, plus the lessons that informed this skill's Iron Law.

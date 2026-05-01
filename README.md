@@ -21,7 +21,7 @@ Process for orchestrating large multi-component refactors as parallel agent disp
 - **Drydocks** → self-contained worktree specs with `VERIFY:` shell commands per task
 - **Dispatch** → DAG, agent brief template, contract-version pinning, phase exit gates
 
-Includes templates for every doc type and a real-world reference (the `ecommerce-scrape-x402` pipeline-v2 rebuild — 12 worktrees across 3 phases).
+Includes templates for every doc type (blueprint, contracts, phase README, worktree spec, agent orchestration, agent bootstrap).
 
 ## Installation
 
