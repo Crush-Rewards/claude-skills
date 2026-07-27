@@ -1,13 +1,15 @@
 ---
 name: ontology-principles
-description: Use when establishing ontology design principles, deciding what to assert, or structuring curated-map vs derived-graph work
+description: Use when establishing general ontology design principles, deciding what to assert, or structuring curated-map vs derived-graph work
 ---
 
 # Ontology Principles
 
+Domain-agnostic. For a full retail illustration, see `examples/gpc-browse-crosswalk.md`.
+
 ## Certain or blank
 
-Assert only mappings you would defend under review. Leave honest blanks (deferred + optional candidate hints) for later walk-down. A wrong confident link is worse than a gap: gaps are queryable; silent errors poison every downstream join.
+Assert only mappings you would defend under review. Leave honest blanks (deferred + optional candidate hints) for later refinement. A wrong confident link is worse than a gap: gaps are queryable; silent errors poison every downstream join.
 
 ## Two representations, one source of truth
 
@@ -20,7 +22,7 @@ If generators rebuild maps from scratch, **baked fixes live in the map files**, 
 
 ## Walk down, precision up
 
-Map coarse → fine (segment → family → class → brick, or equivalent). Coarse structure is cheap and stable; leaf precision is hard. Defect rate usually **grows with depth** — budget verification accordingly.
+Map coarse → fine along the target type hierarchy (root → mid → leaf, or whatever levels the target defines). Coarse structure is cheap and stable; leaf precision is hard. Defect rate usually **grows with depth** — budget verification accordingly.
 
 ## Co-equal multi-match, no silent primary
 
@@ -28,7 +30,7 @@ A node may map to an **unordered set** of targets. Do not invent a ranked “pri
 
 ## Facets for orthogonal axes
 
-When one taxonomy organizes on an axis the other does not model (audience, genre, platform, species, sourcing, condition, topic), tag a **Facet**. Map the **product type** separately. Dual facet + match is expected, not a conflict. See `facets.md`.
+When one taxonomy organizes on an axis the other does not model (audience, genre, platform, geography, condition, …), tag a **Facet**. Map the **domain type** separately. Dual facet + match is expected, not a conflict. See `facets.md`.
 
 ## Ontology derived as you go
 
@@ -38,7 +40,7 @@ Re-derive and run invariants at each checkpoint. Defer hand-refining relation ty
 
 Things you would maintain by hand become **queries**:
 
-- product-type resolution with inheritance
+- type resolution with inheritance along hierarchy
 - forward gaps (unmapped sources) / reverse gaps (unused targets)
 - typed neighbors and relation distributions
 - inherited attribute schemas via the mapped type node
@@ -46,15 +48,15 @@ Things you would maintain by hand become **queries**:
 
 ## Scope discipline
 
-Define in-scope vs out-of-scope early (e.g. retail products vs crops/industrial/services). Out-of-scope **inherits down** the tree only — never force parents out because a descendant is out.
+Define in-scope vs out-of-scope early (product domains, business lines, geographies). Out-of-scope **inherits down** the tree only — never force parents out because a descendant is out.
 
 ## Anti-patterns
 
 | Pattern | Problem |
 |---------|---------|
-| Hand-editing `objects.jsonl` / triples | Diverges from maps; rebuilds wipe work |
-| Asserting from parent titles alone | Over-span and wrong segment |
-| Using merchandising path as product type | Aisle ≠ type (protein bars under Health) |
+| Hand-editing instance graphs / triples | Diverges from maps; rebuilds wipe work |
+| Asserting from parent labels alone | Over-span and wrong branch |
+| Using navigation path as domain type | Path ≠ type (a leaf’s aisle can disagree with its true type) |
 | Embeddings-only placement | Placement needs include/exclude boundary reasoning |
-| Services forced into product taxonomy | Separate vocab (e.g. UNSPSC) or leave blank |
+| Forcing foreign domains into one taxonomy | Separate vocabularies or leave blank |
 | Treating every blank as a bug | Many blanks are correct (target vocab has no leaf) |

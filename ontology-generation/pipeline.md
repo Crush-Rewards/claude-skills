@@ -5,6 +5,8 @@ description: Use when building curated-map → derived-ontology rebuild pipeline
 
 # Derivation Pipeline
 
+Domain-agnostic layout and process.
+
 ## Preferred layout
 
 ```text
@@ -13,7 +15,7 @@ maps/                  # curated source of truth (level maps, overrides)
 ontology/
   schema.json          # object/link types + resolve policy
   bindings.json        # warehouse join contract
-  build_ontology.py    # maps → objects.jsonl + links.jsonl
+  build_ontology.py    # maps → objects + links
   ontology.py          # load + resolve + gaps API
   check_invariants.py  # hard gates
   build_slice.py       # mini subgraph for tests
@@ -24,41 +26,37 @@ docs/
 tests/                 # slice vs control, full invariants
 ```
 
+Adapt names and languages to the repo; keep the **separation of seed / maps / derived ontology / docs / tests**.
+
 ## Gated rebuild
 
 Order matters; fail hard on invariants:
 
 1. Build / refresh curated unified map if needed  
-2. `build_ontology` → objects + links  
-3. Full-graph `check_invariants`  
+2. Build ontology → objects + links  
+3. Full-graph invariants  
 4. Build mini-slice  
 5. Slice invariants  
 6. Optional SKOS export (slice first; full graph optional/large)  
 7. Unit tests (slice ≈ control on anchors)
 
-```bash
-# illustrative
-uv run python ontology/rebuild_all.py
-uv run python ontology/rebuild_all.py --skip-build   # gates only
-```
-
 ## Mini-slice hardening
 
-Carve a few **diverse subtrees** (e.g. food bar + plants + frozen) into an isolated subgraph with the same schema. Use for:
+Carve a few **diverse subtrees** into an isolated subgraph with the same schema. Use for:
 
 - fast invariant iteration
 - resolve/bindings smoke tests
-- SKOS export review without 50k-node noise
+- SKOS export review without full-graph noise
 
 Slice answers for anchor ids must match full-graph control.
 
 ## Attribute / schema layer
 
-Attach type-leaf attributes to target leaves; store large allowed-value enumerations **inline** on the attribute object. Source nodes inherit schema via `resolve` → mapped leaf → `hasAttribute`.
+Attach attributes to target leaves; store large allowed-value enumerations **inline** on the attribute object. Source nodes inherit schema via `resolve` → mapped leaf → `hasAttribute`.
 
 ## Scope application
 
-Config-driven in/out-of-scope lists on roots/segments; **inherit down only**. Persist `in_scope` on objects and denormalized rows for warehouse filters.
+Config-driven in/out-of-scope lists on roots/branches; **inherit down only**. Persist `in_scope` on objects and denormalized rows for warehouse filters.
 
 ## Placement generation (when building maps)
 
@@ -66,7 +64,7 @@ Config-driven in/out-of-scope lists on roots/segments; **inherit down only**. Pe
 - For multi-candidate nodes: assemble **tight** candidate set + include/exclude definitions as prompt context.
 - Cheap **reasoning** LLM for placement; not pure embeddings.
 - Threshold to blank; sample-audit with stronger models.
-- Systematic domain rules (format bricks, device-vs-material) beat thousands of one-offs when patterns exist.
+- Systematic domain rules beat thousands of one-offs when patterns exist.
 
 ## Export
 

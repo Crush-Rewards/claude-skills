@@ -5,18 +5,18 @@ description: Use when defining object types, link types, hierarchy edges, and SK
 
 # Object / Link Model
 
-Palantir-style **plain-data** ontology: typed objects + typed links. Philosophy only — not a platform dependency.
+Palantir-style **plain-data** ontology: typed objects + typed links. Philosophy only — not a platform dependency. Domain-agnostic.
 
-## Object types (typical retail crosswalk)
+## Object types (crosswalk template)
 
 | Type | Identity | Role |
 |------|----------|------|
-| **SourceNode** (e.g. BrowseNode) | `source:{id}` | Nodes in the merchandising / catalog tree |
-| **TargetNode** (e.g. GpcNode) | `target:{code}` | Canonical type nodes at one or more levels |
-| **Facet** | `facet:{kind}/{value}` | Orthogonal merchandising axes |
+| **SourceNode** | `source:{id}` | Nodes in the source hierarchy (catalog, nav, org chart, …) |
+| **TargetNode** | `target:{code}` | Canonical type nodes at one or more levels |
+| **Facet** | `facet:{kind}/{value}` | Orthogonal filter/organize axes |
 | **Attribute** | `attr:{type}:{code}` | Schema dimensions attached to a type leaf |
 
-Keep object inventories **closed and intentional**. Prefer **inline enums** for huge value sets (e.g. attribute allowed-values) over exploding millions of value nodes.
+Rename prefixes and type names for your domain (`crm:`, `unspsc:`, …). Keep object inventories **closed and intentional**. Prefer **inline enums** for huge value sets over exploding millions of value nodes.
 
 ## Link types
 
@@ -24,7 +24,7 @@ Keep object inventories **closed and intentional**. Prefer **inline enums** for 
 
 - **`childOf`** — many-to-one parent edge inside one taxonomy. Do not overload this for crosswalks.
 
-### Match (crosswalk / product-type alignment)
+### Match (crosswalk / type alignment)
 
 Prefer SKOS-aligned names so exports and consumers share vocabulary:
 
@@ -32,11 +32,11 @@ Prefer SKOS-aligned names so exports and consumers share vocabulary:
 |----------|---------|
 | `exactMatch` | Same concept/extent; interchangeable. Require **single target** for true 1:1. |
 | `closeMatch` | Overlapping / similar, not clean containment or equivalence |
-| `narrowerThan` | Source more specific than target (many leaves → one brick) |
+| `narrowerThan` | Source more specific than target (many leaves → one type node) |
 | `broaderThan` | Source more general (one node → several targets) |
 | `relatedMatch` | Associative / adjacent / flagged for review — **not** containment |
 
-Inverse pairs: document `broaderThan` ↔ `narrowerThan` direction carefully (browse→GPC vs GPC→browse; SKOS `broadMatch`/`narrowMatch` export mapping).
+Document direction carefully when exporting to SKOS (`broadMatch` / `narrowMatch`).
 
 ### Supporting links
 
@@ -49,7 +49,7 @@ Inverse pairs: document `broaderThan` ↔ `narrowerThan` direction carefully (br
 
 ## Match relation derivation (recommended priority)
 
-1. **exactMatch** — title/code equivalence **and** single target (multi-variant sets stay broader, not multi-exact).
+1. **exactMatch** — label/code equivalence **and** single target (multi-variant sets stay broader, not multi-exact).
 2. **Reasoning overrides** — small curated map for 1:1 cases cardinality cannot decide.
 3. **Cardinality fallback** — multi-target → `broaderThan`; multi-source into one target → `narrowerThan`; else `closeMatch`.
 

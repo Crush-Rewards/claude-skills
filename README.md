@@ -24,14 +24,16 @@ Process for orchestrating large multi-component refactors as parallel agent disp
 Includes templates for every doc type (blueprint, contracts, phase README, worktree spec, agent orchestration, agent bootstrap).
 
 ### ontology-generation
-Principles for designing and shipping product/domain ontologies and multi-taxonomy crosswalks. Distilled from large retail browse ↔ GS1 GPC work. Covers:
+**General** principles for designing and shipping domain ontologies and multi-taxonomy crosswalks (not tied to any one catalog). Covers:
 - **Principles** — certain-or-blank, curated maps vs derived graph, walk-down precision
 - **Object/link model** — typed objects, SKOS-aligned match relations, schema artifacts
 - **Identity & bindings** — prefixed ids, warehouse join contracts, no title joins
-- **Facets** — orthogonal merchandising axes vs product type (dual links by design)
-- **Resolution** — inherit-up resolve API, multi-match co-equal, brick-beats-class
+- **Facets** — orthogonal axes vs domain type (dual links by design)
+- **Resolution** — inherit-up resolve API, multi-match co-equal, fine-beats-coarse
 - **Verification** — numbered invariants, verify→fix loops, sampling vs certify
 - **Pipeline** — gated rebuild, mini-slices, SKOS export, placement generation
+
+Optional worked example only (not default scope): `examples/gpc-browse-crosswalk.md` — Amazon browse nodes ↔ GS1 GPC, showing how the general patterns were applied at scale.
 
 ## Installation
 
