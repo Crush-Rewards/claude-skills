@@ -23,19 +23,35 @@ Process for orchestrating large multi-component refactors as parallel agent disp
 
 Includes templates for every doc type (blueprint, contracts, phase README, worktree spec, agent orchestration, agent bootstrap).
 
+### ontology-generation
+Principles for designing and shipping product/domain ontologies and multi-taxonomy crosswalks. Distilled from large retail browse ↔ GS1 GPC work. Covers:
+- **Principles** — certain-or-blank, curated maps vs derived graph, walk-down precision
+- **Object/link model** — typed objects, SKOS-aligned match relations, schema artifacts
+- **Identity & bindings** — prefixed ids, warehouse join contracts, no title joins
+- **Facets** — orthogonal merchandising axes vs product type (dual links by design)
+- **Resolution** — inherit-up resolve API, multi-match co-equal, brick-beats-class
+- **Verification** — numbered invariants, verify→fix loops, sampling vs certify
+- **Pipeline** — gated rebuild, mini-slices, SKOS export, placement generation
+
 ## Installation
 
-Clone this repo and symlink the skills into your Claude Code skills directory:
+Clone this repo and symlink the skills into your Claude Code / agents skills directories:
 
 ```bash
 git clone git@github.com:Crush-Rewards/claude-skills.git ~/crush-skills
 
-# Symlink individual skills
+# Symlink individual skills (Claude Code)
 ln -s ~/crush-skills/data-engineering ~/.claude/skills/data-engineering
 ln -s ~/crush-skills/shipyard ~/.claude/skills/shipyard
+ln -s ~/crush-skills/ontology-generation ~/.claude/skills/ontology-generation
+
+# Open skills / multi-agent path (optional mirror)
+ln -s ~/crush-skills/ontology-generation ~/.agents/skills/ontology-generation
 ```
 
 Or copy the skill directories directly into `~/.claude/skills/`.
+
+If this repo is already checked out under `crush/shared/tooling/claude-skills`, symlink from that path instead of a second clone.
 
 ## Contributing
 
