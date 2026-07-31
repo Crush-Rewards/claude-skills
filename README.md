@@ -35,6 +35,17 @@ Includes templates for every doc type (blueprint, contracts, phase README, workt
 
 Optional worked example only (not default scope): `examples/gpc-browse-crosswalk.md` — Amazon browse nodes ↔ GS1 GPC, showing how the general patterns were applied at scale.
 
+
+### user-audit
+Support investigation runbook for Crush account risk state. Use when asking why a user is in `review`/`banned`, why receipts were rejected, or to inspect a Plaid multi-account cluster. Covers:
+- **Risk spine** — `users.risk_reason`, `risk_decisions`, `risk_signals` (incl. joint-account guard)
+- **Plaid overlap** — peer users, shared institution+mask, TX tuple reconstruction (`tupleKey`)
+- **Session / geo** — `sessions` + `ip_addresses` (not just signup `ip_hash`/`device_id`)
+- **Receipt rollups** — submitted/approved/physical; fraud rejection codes
+- **CRUSH earned / held / sold** — ledger vs on-chain airdrops/claims/stake/wallet
+- **Worked example** — 2026-07 monasonly / datbaby / tipp shared-Chime cluster
+- Related product issue: Crush-Rewards/crush-backend#291 (first-linker-wins)
+
 ## Installation
 
 Clone this repo and symlink the skills into your Claude Code / agents skills directories:
@@ -46,6 +57,7 @@ git clone git@github.com:Crush-Rewards/claude-skills.git ~/crush-skills
 ln -s ~/crush-skills/data-engineering ~/.claude/skills/data-engineering
 ln -s ~/crush-skills/shipyard ~/.claude/skills/shipyard
 ln -s ~/crush-skills/ontology-generation ~/.claude/skills/ontology-generation
+ln -s ~/crush-skills/user-audit ~/.claude/skills/user-audit
 
 # Open skills / multi-agent path (optional mirror)
 ln -s ~/crush-skills/ontology-generation ~/.agents/skills/ontology-generation
