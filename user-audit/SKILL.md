@@ -133,6 +133,65 @@ Check `authenticity` (`is_physical_receipt`, `tamper_signals`) and `fraud_detail
 (`priorReceiptId`, `hammingDistance`, `peerUserId`, `taxRate`, …) to judge each. Then read the rule
 in `src/services/fraud/receiptFraudRules.ts` / `fraud/index.ts` to see exactly what fired.
 
+### 4b — visually confirm `fraud_cross_user_duplicate` / `fraud_image_duplicate`
+Do **not** treat a fingerprint hit as visual proof. Extracted store/date/total matching is
+necessary but not sufficient — two different slips can share those fields, and two photos of
+the same slip can look different (angle, crop, lighting). Compare the **image pair**.
+
+Pairs: each reject's `fraud_details.priorReceiptId` + the reject itself. Compare the pair
+that triggered the latest escalate first; add more pairs only if that one is inconclusive.
+
+**Images live in the private `receipts` bucket.** Stored `image_url` looks like
+`https://<ref>.supabase.co/storage/v1/object/public/receipts/<path>` but public GETs 400.
+Parse `<path>` after `/object/public/receipts/` (typically
+`receipts/<user_id>/receipt_<ts>_….jpg`). Sign with the service role. The key is **not**
+in `~/.zshrc`; it is on Render `crush-backend-prd` (`srv-d77vv8pr0fns739ooakg`). Run a
+one-off job whose `node -e` uses `process.env.SUPABASE_URL` +
+`process.env.SUPABASE_SERVICE_ROLE_KEY`, `createSignedUrl` on bucket `receipts` (TTL 3600),
+and prints `SIGNED_URLS_JSON_BEGIN` / JSON array of `{path,url,error}` / `SIGNED_URLS_JSON_END`.
+Then `render logs -r <job-id> --limit 200 -o json` and parse the line between the markers
+(service-level `--text` logs miss the job stdout). Inline the storage paths in the job command. If `SUPABASE_SERVICE_ROLE_KEY` is already in
+the local env, sign locally instead. Prefer thumbs (`receipt-thumbs` / `thumb_url`) only
+when the original will not fit the model; originals are the source of truth.
+
+**Vision call — AgentCash → blockrun.ai** (paid x402; check `agentcash__get_balance` first;
+balance is required). Origin `https://blockrun.ai`. Endpoint
+`POST https://blockrun.ai/api/v1/chat/completions`. Always
+`agentcash__check_endpoint_schema` before the first `agentcash__fetch` in the session.
+
+Use a vision model (`google/gemini-2.5-flash` default; `nvidia/nemotron-nano-12b-v2-vl` if
+you need the explicit VL id). OpenAPI types `messages[].content` as a string, but the
+gateway is OpenAI-compatible — send multimodal content:
+
+```
+image A = first-approved / priorReceiptId
+image B = the rejected duplicate
+```
+
+```json
+{
+  "model": "google/gemini-2.5-flash",
+  "max_tokens": 800,
+  "messages": [{
+    "role": "user",
+    "content": [
+      {"type": "text", "text": "Two grocery/gas receipts. A is the earlier submission, B is the later one our system flagged as the same slip. Decide if they are the same physical receipt. Compare merchant, date, time, total, transaction/auth codes, last4, and layout. Note if B is a reshoot, screenshot, crop, or digitally altered. Reply JSON only: {same_physical_receipt: bool, confidence: 0-1, why, store, date, total, differing_fields: [], b_is: \"same_photo\"|\"reshoot\"|\"screenshot\"|\"different_receipt\"|\"tampered\"}"},
+      {"type": "image_url", "image_url": {"url": "<signed A>"}},
+      {"type": "image_url", "image_url": {"url": "<signed B>"}}
+    ]
+  }]
+}
+```
+
+If signed URLs are not fetchable from BlockRun, download locally and send
+`data:image/jpeg;base64,…` instead. Cap `agentcash__fetch.maxAmount` at `1` unless the
+quote is higher. Do not paste signed URLs into the user-facing writeup.
+
+Read-back: `same_physical_receipt=true` confirms the detector; `false` is a fingerprint
+false positive (do not treat as multi-accounting). `tampered` / `screenshot` of a digital
+receipt upgrades severity. The vision result does **not** by itself justify an account
+freeze — apply the household bar in Step 6.
+
 ## Step 5 — if it's `plaid_tx_overlap`, pull peers + overlapping bank details
 This is the expanded path from the monasonly cluster investigation. Run these after Step 1
 when `risk_reason` / signals show `plaid_tx_overlap`.
@@ -324,9 +383,39 @@ Public Solana RPC is often 429-limited for per-tx parsing; wallet balance + stak
 sums are usually enough for support.
 
 ## Step 6 — verdict + remediation
-State whether the flag is **justified** or a **false positive** (per signal):
-- `receipt_fraud` on authentic receipts with an explicable reason (e.g. mixed EBT basket, legit
-  duplicate) → likely FP. Tampered/synthetic/cross-user-dup with corroboration → likely genuine.
+State whether the flag is **justified** or a **false positive** (per signal), and whether
+**account-level** `review` is the right hammer (often it is not).
+
+**Household / roommate bar (default lenient):** two people sharing a home (partners, family)
+who submit the same physical receipt is expected, not a sophisticated attack. Matching
+extracted fields + a confirmed same-slip photo (Step 4b) means they tried to get paid twice
+for one basket. If **the second copy was rejected**, that is the control working. Do **not**
+recommend ban or keeping the account frozen when all of these hold:
+
+- Distinct Plaid identity — no `plaid_account_collision` / `plaid_tx_overlap`, or only one
+  side linked. Shared bank (same `institution_id`+`mask`, or PID match) fails this bar.
+- Second copies of identical slips are `rejected` (`fraud_cross_user_duplicate` /
+  `fraud_image_duplicate`); first copy may stay approved.
+- Vision (4b) says same physical slip (or extracted fields match and images are consistent),
+  not synthetic/tampered.
+- Cluster shape is household: 2 people, shared home IP/city, different devices/phones.
+  Same email *stem* across gmail/yahoo is compatible with household; it is not by itself
+  a farm.
+
+In that shape, say the `receipt_fraud` escalate **fired correctly** but account-level
+`review` is **too harsh** — recommend `clear` so both keep earning on *their own*
+receipts. The uniqueness gate stays on.
+
+**Still treat as genuine abuse (keep review / consider ban):**
+
+- Shared bank across 2+ Crush accounts (Plaid collision or high tx-overlap, 2+ peers).
+- Second copy was **approved** (uniqueness failed) or they farm 3+ accounts / many devices.
+- Vision says tampered, synthetic, or a screenshot of a digital receipt reused as “physical.”
+- `receipt_fraud` on authentic receipts with an explicable non-dup reason (mixed EBT basket,
+  `fraud_total_eq_card_last4` OCR, etc.) → likely rule FP, not abuse.
+
+Other signals unchanged:
+
 - `plaid_tx_overlap` with 2+ peers on same institution+mask → usually genuine multi-account /
   shared-bank cluster (not FP). Single peer may be joint household (guard already weight-0).
 - Incomplete token dump does **not** prove innocence (staking / not enough time to sell).
@@ -335,7 +424,8 @@ State whether the flag is **justified** or a **false positive** (per signal):
 Remediation is admin-only (do not run unprompted): `POST /v1/admin/risk/:id/clear` (or
 `bulkRiskTransition action:'clear'`) resets to `ok` **and releases withheld pending rewards**;
 `…/ban` forfeits them. For Plaid clusters: clearing one user without unlinking / disabling
-secondary bank links will re-escalate. Prefer treating the **cluster** together.
+secondary bank links will re-escalate. Prefer treating the **cluster** together. For
+household receipt-dup pairs, clear the frozen side; do not ban the peer who is still `ok`.
 
 If the flag is a systemic false-positive class, fix the rule + consider a backfill
 (see the EBT case: `scripts/backfill-ebt-tax-false-positives.ts`).
@@ -350,11 +440,12 @@ See https://github.com/Crush-Rewards/crush-backend/issues/291 (assignee `@smoham
 | User asks | Run |
 |---|---|
 | Why is X in review? | Steps 1–3 (+4 or 5) |
+| Are these two receipts actually the same? | 4b (sign images → blockrun.ai vision) |
 | Show the two overlapping details / peers | 5a–5c |
 | Same device / location? | 5d (`sessions` + `ip_addresses`, not just signup) |
 | How many receipts / physical? | 5e |
 | CRUSH earned / still hold / sold? | 5f |
-| What should we do instead of ban? | Step 6 product direction + cluster remediation |
+| What should we do instead of ban? | Step 6 household bar + product direction |
 
 ## Worked example — monasonly cluster (2026-07)
 - Subject: `monasonly1@icloud.com` → `plaid_tx_overlap` ~30m after signup

@@ -42,6 +42,8 @@ Support investigation runbook for Crush account risk state. Use when asking why 
 - **Plaid overlap** — peer users, shared institution+mask, TX tuple reconstruction (`tupleKey`)
 - **Session / geo** — `sessions` + `ip_addresses` (not just signup `ip_hash`/`device_id`)
 - **Receipt rollups** — submitted/approved/physical; fraud rejection codes
+- **Visual confirm** — sign private receipt images and compare duplicate pairs via blockrun.ai vision
+- **Household bar** — same-slip household dups are a uniqueness-gate success, not a ban; `review` is often too harsh
 - **CRUSH earned / held / sold** — ledger vs on-chain airdrops/claims/stake/wallet
 - **Worked example** — 2026-07 monasonly / datbaby / tipp shared-Chime cluster
 - Related product issue: Crush-Rewards/crush-backend#291 (first-linker-wins)
