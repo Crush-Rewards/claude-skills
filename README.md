@@ -36,6 +36,15 @@ Includes templates for every doc type (blueprint, contracts, phase README, workt
 Optional worked example only (not default scope): `examples/gpc-browse-crosswalk.md` — Amazon browse nodes ↔ GS1 GPC, showing how the general patterns were applied at scale.
 
 
+### site-engagement
+Turns GA4 behaviour data into UX/product decisions for crushrewards.app: per-page attention and
+conversion, CTA placement by button, device gaps, scroll depth. Use for "what should we improve on
+the landing page", "which pages actually convert", or any UI work that should start from evidence.
+- Backed by `npm run engagement` in `shared/marketing/content-engine` (free, GA4 only)
+- Detects five recurring patterns in code, so the same evidence always yields the same finding
+- Carries sample size and Wilson intervals on every rate — a 5-session page never reads as a result
+- Counterpart to search performance (`npm run health`), not a replacement for it
+
 ### user-audit
 Support investigation runbook for Crush account risk state. Use when asking why a user is in `review`/`banned`, why receipts were rejected, or to inspect a Plaid multi-account cluster. Covers:
 - **Risk spine** — `users.risk_reason`, `risk_decisions`, `risk_signals` (incl. joint-account guard)
