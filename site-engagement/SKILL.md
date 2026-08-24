@@ -135,8 +135,25 @@ every rate.
 - **Referral pages (`/refer/*`) flatter the average.** They convert at 36–75% because that
   traffic arrives pre-sold. Exclude them mentally when judging whether the site converts well.
 
+## Paid campaigns
+
+`npm run paid` is the companion for ad spend — campaign cost/CPC/cost-per-conversion, channel comparison,
+and whether spend months actually grew new users. Two traps are encoded as guards there because both were
+hit on the first pass:
+
+- **Never query `advertiserAdCost` against `yearMonth`.** GA4 re-attributes daily cost across the month;
+  it reported $1,085 of real spend as $14,237. Campaign-only and campaign×date agree — the report
+  cross-checks them and says so.
+- **Months before the first *firing* key event are unmeasurable, not 0%.** Use the earliest key event with
+  a non-zero count, not the earliest configured one.
+
+Paid conversion is judged against the site's own non-paid baseline, never an industry benchmark. And the
+conversion being measured is an App Store *button click*, not an install — true CAC needs App Store Connect
+or an attribution provider, neither of which is visible from GA4.
+
 ## Related
 
+- `npm run paid` — ad spend, campaign verdicts, growth-vs-spend
 - `npm run health` — search performance (GSC), including query intent mix and install yield
 - `npm run indexation` — whether Google is serving the pages at all
 - `npm run page-meta` — title/description proposals for non-blog pages
