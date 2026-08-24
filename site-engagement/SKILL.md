@@ -151,6 +151,15 @@ Paid conversion is judged against the site's own non-paid baseline, never an ind
 conversion being measured is an App Store *button click*, not an install — true CAC needs App Store Connect
 or an attribution provider, neither of which is visible from GA4.
 
+## Two numbers people misread
+
+- **`newUsers` is new browsers on the website, not app accounts.** ~8.5k website users since Jan 2025
+  against ~744 app users — different populations. A visitor who never installs is not a user. Anyone
+  comparing the two will think the analytics are broken.
+- **The GA4 property is not one site.** syntalic.com, crushrewards.dev, localhost and Vercel preview URLs
+  all report into it (~5% of users). Both commands filter on `hostName`; GA4 refuses that filter alongside
+  imported ad-cost metrics, so those two queries opt out by design.
+
 ## Related
 
 - `npm run paid` — ad spend, campaign verdicts, growth-vs-spend
