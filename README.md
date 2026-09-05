@@ -40,10 +40,21 @@ Optional worked example only (not default scope): `examples/gpc-browse-crosswalk
 Turns GA4 behaviour data into UX/product decisions for crushrewards.app: per-page attention and
 conversion, CTA placement by button, device gaps, scroll depth. Use for "what should we improve on
 the landing page", "which pages actually convert", or any UI work that should start from evidence.
-- Backed by `npm run engagement` in `shared/marketing/content-engine` (free, GA4 only)
+- Backed by `npm run engagement` in `marketing/apps/engine` (free, GA4 only)
 - Detects five recurring patterns in code, so the same evidence always yields the same finding
 - Carries sample size and Wilson intervals on every rate — a 5-session page never reads as a result
 - Counterpart to search performance (`npm run health`), not a replacement for it
+
+### marketing-site
+Orchestrates health + engagement + page-meta + is-agentic into marketing-site copy/layout/agent recs.
+Use when the ask is "what should we change on crushrewards.app" across visibility, bounce, messaging,
+and agent readiness. Cover sheet: `npm run site-recs`. Does not replace `site-engagement` (judgment
+layer for GA4) or blog production (`content-engine`).
+
+### content-engine
+Operator runbook for the content pipeline: produce/hydrate, Labs keyword scoring, rank tracking for
+intended keywords, AEO citation prospecting. Spend caps and `--dry-run` first. Not for landing-page
+copy (that's `marketing-site`).
 
 ### user-audit
 Support investigation runbook for Crush account risk state. Use when asking why a user is in `review`/`banned`, why receipts were rejected, or to inspect a Plaid multi-account cluster. Covers:
@@ -69,6 +80,9 @@ ln -s ~/crush-skills/data-engineering ~/.claude/skills/data-engineering
 ln -s ~/crush-skills/shipyard ~/.claude/skills/shipyard
 ln -s ~/crush-skills/ontology-generation ~/.claude/skills/ontology-generation
 ln -s ~/crush-skills/user-audit ~/.claude/skills/user-audit
+ln -s ~/crush-skills/site-engagement ~/.claude/skills/site-engagement
+ln -s ~/crush-skills/marketing-site ~/.claude/skills/marketing-site
+ln -s ~/crush-skills/content-engine ~/.claude/skills/content-engine
 
 # Open skills / multi-agent path (optional mirror)
 ln -s ~/crush-skills/ontology-generation ~/.agents/skills/ontology-generation

@@ -17,15 +17,17 @@ device). Use both; do not conflate them.
 ## Run it
 
 ```bash
-cd ~/dev/crush/shared/marketing/content-engine
+cd ~/dev/crush/marketing/apps/engine
 npm run engagement                       # 90d → sites/<site>/research/engagement-analysis-<date>.md
+npm run engagement -- --site syntalic    # Syntalic.com (own GA4 property)
 npm run engagement -- --days 28          # tighter window
 npm run engagement -- --out ~/Desktop    # also drop a copy where someone will find it
 npm run engagement -- --json             # machine-readable, no file written
 npm run engagement -- --min-sessions 30  # raise the bar for "worth reporting"
 ```
 
-Free — GA4 Data API only, no paid calls. Needs `GA4_PROPERTY_ID` and Google credentials
+Free — GA4 Data API only, no paid calls. Needs `site.analytics.ga4PropertyId` (Crush:
+`GA4_PROPERTY_ID`; Syntalic: `SYNTALIC_GA4_PROPERTY_ID`) and Google credentials
 (`npm run doctor -- --domain intelligence` to check).
 
 The command writes the whole report: findings and recommendations at the **top**, then the data
@@ -166,5 +168,6 @@ or an attribution provider, neither of which is visible from GA4.
 - `npm run health` — search performance (GSC), including query intent mix and install yield
 - `npm run indexation` — whether Google is serving the pages at all
 - `npm run page-meta` — title/description proposals for non-blog pages
-- Landing page repo: `~/dev/crush/app/landing-page` (Next.js routes; metadata lives in each
+- Crush web: `~/dev/crush/marketing/apps/crush-web` (Next.js routes; metadata lives in each
   route's `metadata` export)
+- Syntalic web: `~/dev/crush/marketing/apps/syntalic-web`
