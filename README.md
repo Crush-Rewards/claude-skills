@@ -1,101 +1,38 @@
-# Crush Rewards — Claude Code Skills
+# Claude Code skills — portable
 
-Custom skills for the Crush Rewards team. These are loaded by Claude Code to provide domain-specific guidance.
+Skills that work **anywhere**: methods and principles, not the operating manual for one repo.
+Symlinked into `~/.claude/skills/` so they load in every project.
 
-## Available Skills
+| Skill | What it is |
+|---|---|
+| `data-engineering` | Principles-first pipeline design, modeling, quality, performance. Tool-agnostic. |
+| `ontology-generation` | Domain ontologies and multi-taxonomy crosswalks — objects/links, facets, identity bindings. |
+| `shipyard` | Decomposing a large refactor into parallel git-worktree drydocks against versioned contracts. |
+| `user-audit` | Investigating why a Crush user is in review/banned — evidence gathering and false-positive judgement. |
+| `interface-review` | One consolidated UI review — a11y, layout, writing, type, polish — ranked findings and a verdict. Annotates Figma frames. |
 
-### data-engineering
-Principles-first, tool-agnostic data engineering guidance. Covers:
-- **Pipeline design** — idempotency, failure handling, backfill, observability
-- **Data modeling** — schema layering (raw/staging/mart), naming conventions, SCDs
-- **Data quality** — validation, contracts, freshness monitoring, quarantine patterns
-- **Data architecture** — tool selection, scaling signals, batch vs. stream
-- **Performance & indexing** — query optimization, EXPLAIN, partitioning, maintenance
+## Where the other skills went (2026-09-09)
 
-### shipyard
-Process for orchestrating large multi-component refactors as parallel agent dispatches. Decomposes a rebuild into isolated git-worktree drydocks built in parallel against versioned engineering contracts. Use for system rewrites, pipeline overhauls, monolith decomposition, or any refactor where 5+ independent units of work could run concurrently. Six stages:
-- **Brainstorm** → align on intent (composes with `superpowers:brainstorming` + `data-engineering`)
-- **Blueprint** → architecture doc (problem, principles, decisions)
-- **Contracts** → versioned interface specs between worktrees
-- **Phases** → pure-parallel groupings (the Iron Law: no inter-worktree dependencies inside a phase)
-- **Drydocks** → self-contained worktree specs with `VERIFY:` shell commands per task
-- **Dispatch** → DAG, agent brief template, contract-version pinning, phase exit gates
+A skill that is the operating manual for one project belongs **with that project**, so it versions
+with the thing it documents and changes alongside it:
 
-Includes templates for every doc type (blueprint, contracts, phase README, worktree spec, agent orchestration, agent bootstrap).
+| Skill | Now lives in |
+|---|---|
+| `content-engine`, `marketing-site`, `site-engagement`, `outreach-dossier` | `crush/marketing` → `.claude/skills/` |
+| `syntalic-dogfood` | stays in `crush/dogfooding` → `.claude/skills/`, which is now its own git repo |
 
-### ontology-generation
-**General** principles for designing and shipping domain ontologies and multi-taxonomy crosswalks (not tied to any one catalog). Covers:
-- **Principles** — certain-or-blank, curated maps vs derived graph, walk-down precision
-- **Object/link model** — typed objects, SKOS-aligned match relations, schema artifacts
-- **Identity & bindings** — prefixed ids, warehouse join contracts, no title joins
-- **Facets** — orthogonal axes vs domain type (dual links by design)
-- **Resolution** — inherit-up resolve API, multi-match co-equal, fine-beats-coarse
-- **Verification** — numbered invariants, verify→fix loops, sampling vs certify
-- **Pipeline** — gated rebuild, mini-slices, SKOS export, placement generation
+They are still symlinked into `~/.claude/skills/`, so they load everywhere — the move is about
+ownership and versioning, not load scope.
 
-Optional worked example only (not default scope): `examples/gpc-browse-crosswalk.md` — Amazon browse nodes ↔ GS1 GPC, showing how the general patterns were applied at scale.
+## The rule
 
+**Portable → here. Repo-bound → that repo.** The test: could someone run this skill against a
+different codebase and get a sensible answer? If it names absolute paths, npm scripts, or a schema,
+it is repo-bound.
 
-### site-engagement
-Turns GA4 behaviour data into UX/product decisions for crushrewards.app: per-page attention and
-conversion, CTA placement by button, device gaps, scroll depth. Use for "what should we improve on
-the landing page", "which pages actually convert", or any UI work that should start from evidence.
-- Backed by `npm run engagement` in `marketing/apps/engine` (free, GA4 only)
-- Detects five recurring patterns in code, so the same evidence always yields the same finding
-- Carries sample size and Wilson intervals on every rate — a 5-session page never reads as a result
-- Counterpart to search performance (`npm run health`), not a replacement for it
+**State the working directory before the first command.** A user-level skill that assumes ambient
+context will misfire in the wrong repo — that is the whole failure mode. Say where it runs first.
 
-### marketing-site
-Orchestrates health + engagement + page-meta + is-agentic into marketing-site copy/layout/agent recs.
-Use when the ask is "what should we change on crushrewards.app" across visibility, bounce, messaging,
-and agent readiness. Cover sheet: `npm run site-recs`. Does not replace `site-engagement` (judgment
-layer for GA4) or blog production (`content-engine`).
-
-### content-engine
-Operator runbook for the content pipeline: produce/hydrate, Labs keyword scoring, rank tracking for
-intended keywords, AEO citation prospecting. Spend caps and `--dry-run` first. Not for landing-page
-copy (that's `marketing-site`).
-
-### user-audit
-Support investigation runbook for Crush account risk state. Use when asking why a user is in `review`/`banned`, why receipts were rejected, or to inspect a Plaid multi-account cluster. Covers:
-- **Risk spine** — `users.risk_reason`, `risk_decisions`, `risk_signals` (incl. joint-account guard)
-- **Plaid overlap** — peer users, shared institution+mask, TX tuple reconstruction (`tupleKey`)
-- **Session / geo** — `sessions` + `ip_addresses` (not just signup `ip_hash`/`device_id`)
-- **Receipt rollups** — submitted/approved/physical; fraud rejection codes
-- **Visual confirm** — sign private receipt images and compare duplicate pairs via blockrun.ai vision
-- **Household bar** — same-slip household dups are a uniqueness-gate success, not a ban; `review` is often too harsh
-- **CRUSH earned / held / sold** — ledger vs on-chain airdrops/claims/stake/wallet
-- **Worked example** — 2026-07 monasonly / datbaby / tipp shared-Chime cluster
-- Related product issue: Crush-Rewards/crush-backend#291 (first-linker-wins)
-
-## Installation
-
-Clone this repo and symlink the skills into your Claude Code / agents skills directories:
-
-```bash
-git clone git@github.com:Crush-Rewards/claude-skills.git ~/crush-skills
-
-# Symlink individual skills (Claude Code)
-ln -s ~/crush-skills/data-engineering ~/.claude/skills/data-engineering
-ln -s ~/crush-skills/shipyard ~/.claude/skills/shipyard
-ln -s ~/crush-skills/ontology-generation ~/.claude/skills/ontology-generation
-ln -s ~/crush-skills/user-audit ~/.claude/skills/user-audit
-ln -s ~/crush-skills/site-engagement ~/.claude/skills/site-engagement
-ln -s ~/crush-skills/marketing-site ~/.claude/skills/marketing-site
-ln -s ~/crush-skills/content-engine ~/.claude/skills/content-engine
-
-# Open skills / multi-agent path (optional mirror)
-ln -s ~/crush-skills/ontology-generation ~/.agents/skills/ontology-generation
-```
-
-Or copy the skill directories directly into `~/.claude/skills/`.
-
-If this repo is already checked out under `crush/shared/tooling/claude-skills`, symlink from that path instead of a second clone.
-
-## Contributing
-
-To add a new skill:
-1. Create a directory with a `SKILL.md` containing YAML frontmatter (`name` and `description`)
-2. Keep skills under 500 words each
-3. Follow the "Use when..." pattern for descriptions
-4. Test with and without the skill to verify it improves Claude's responses
+**Encode how to decide, not what was decided.** Cluster lists, "next up", dated holds and paused
+flags belong in the code or a tracker. A skill that enumerates them is stale the week after it is
+written.
