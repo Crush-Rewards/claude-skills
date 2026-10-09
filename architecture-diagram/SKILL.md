@@ -1,6 +1,6 @@
 ---
 name: architecture-diagram
-description: Use when asked to draw an architecture, system, pipeline or data-flow diagram in a Figma design file as boxes and arrows — zones, nodes (steps, stored data, a person's decision, outside systems), labelled arrows, a legend and notes — built from one spec with the bundled builder for the Figma `use_figma` tool.
+description: Use when asked to draw an architecture, system, pipeline or data-flow diagram in Figma as boxes and arrows — zones, nodes (steps, stored data, a person's decision, outside systems), labelled arrows, a legend and notes. Asks first whether it goes in a FigJam board or a Figma design file, then builds from one spec: the bundled builder and the Figma `use_figma` tool for a design file, Mermaid through `generate_diagram` for FigJam.
 ---
 
 # Architecture diagram (Figma)
@@ -8,10 +8,28 @@ description: Use when asked to draw an architecture, system, pipeline or data-fl
 Draw how a system works as nodes and arrows on a Figma board: something a person can follow with a
 finger from where work starts to where it ends.
 
-**Where it runs:** against a Figma design file (`figma.com/design/...`) through the Figma MCP's
-`use_figma` tool. Load the `figma-use` skill before the first call. The diagram itself has no repo,
-but its facts come from one: read the code and docs of the system being drawn before placing a box.
-For a throwaway sketch in FigJam, `generate_diagram` is quicker and this skill is the wrong tool.
+**Where it runs:** in Figma, in one of two places: a **FigJam board** (`figma.com/board/...`) or a
+**Figma design file** (`figma.com/design/...`). They are built with different tools and give
+different results, so **ask which one before doing anything else** (Step 0). The diagram itself has
+no repo, but its facts come from one: read the code and docs of the system being drawn before
+placing a box.
+
+## Step 0 — ask where it goes
+
+Skip the question only when the request already settles it: a `figma.com/board/...` URL or the word
+"FigJam" means FigJam; a `figma.com/design/...` URL or "design file" means a design file. Otherwise
+ask with `AskUserQuestion`, one question, two options, and do not start gathering or drawing until
+it is answered:
+
+| Option | Say this |
+|---|---|
+| **Figma design file** | The finished, house-style board: zones as columns, cylinders for stored data, amber for a person's decision, a legend, notes and "not on yet" tags, laid out exactly as the SPEC says. Arrows are plain lines, so they do not follow a box that is dragged. Built with this skill's builder in a design file you point me to. |
+| **FigJam board** | A working diagram that anyone on the team can edit: real shapes and connectors, laid out automatically from Mermaid. Quicker, but less control: no zone columns, legend or tags, and a big pipeline spreads out. Creates its own FigJam file, or I can add to a board you give me. |
+
+Lead with the one that fits what they said: FigJam for a sketch, a discussion or something others
+will edit; the design file for a diagram that will be read and believed, or has more than about 20
+edges. If they are unsure, recommend the design file. Then follow the matching path below: the design
+file is Steps 4-7 of this file; FigJam is `references/figjam.md`.
 
 ## What a good one does
 
@@ -33,6 +51,10 @@ For a throwaway sketch in FigJam, `generate_diagram` is quicker and this skill i
 
 ## How to make one
 
+Steps 1-3 are the same for both targets (for FigJam the grid only fixes the order things are
+written in; FigJam places them itself). Steps 4-7 are the **design-file** path. For a **FigJam
+board**, stop after Step 3 and follow `references/figjam.md`, which turns the same SPEC into Mermaid.
+
 1. **Gather the facts.** List the components (jobs, tables, review steps, outside systems), the
    edges between them, the schedule, and what is built but off. Note the source for each: a file, a
    config value, a PR.
@@ -43,9 +65,9 @@ For a throwaway sketch in FigJam, `generate_diagram` is quicker and this skill i
    bottom, with an empty row above it.
 3. **Write the SPEC.** One object: zones, nodes, edges, notes. The format is below, and
    `references/example-discovery.js` is a complete one.
-4. **Build.** One `use_figma` call whose code is the SPEC, then the whole of `references/builder.js`,
-   then `return await buildDiagram(SPEC);`. Together they are well under the tool's 50,000
-   characters.
+4. **Build.** Load the `figma-use` skill before the first call. Then one `use_figma` call whose code
+   is the SPEC, then the whole of `references/builder.js`, then `return await buildDiagram(SPEC);`.
+   Together they are well under the tool's 50,000 characters.
 5. **Check.** The builder returns `warnings`: a subtitle that wraps, a label wider than the gap it
    sits in. Then take `get_screenshot` at the board's own width, crop it into quarters, and look at
    each one for arrows crossing captions, labels touching a zone's border, and lines crossing lines.
@@ -53,7 +75,7 @@ For a throwaway sketch in FigJam, `generate_diagram` is quicker and this skill i
    rebuild is the edit. A small fix can be patched in place, but then change the SPEC to match: the
    SPEC is the source.
 7. **Say what it can't do.** Design files have no connectors. The arrows are plain lines, so they
-   do not follow a box that someone drags.
+   do not follow a box that someone drags. If that matters, the FigJam path is the alternative.
 
 ## The SPEC
 
@@ -135,5 +157,6 @@ mono face at these sizes:
 
 | File | What it is |
 |---|---|
+| `references/figjam.md` | The FigJam path: SPEC to Mermaid, the `generate_diagram` call, what FigJam can and cannot carry. Read it when the person chose FigJam |
 | `references/builder.js` | The builder. Paste it whole after the SPEC; it defines `buildDiagram(SPEC)` |
 | `references/example-discovery.js` | A full SPEC: seven zones, 29 nodes, 34 edges, two notes, every route kind |
