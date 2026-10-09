@@ -37,3 +37,7 @@ context will misfire in the wrong repo — that is the whole failure mode. Say w
 **Encode how to decide, not what was decided.** Cluster lists, "next up", dated holds and paused
 flags belong in the code or a tracker. A skill that enumerates them is stale the week after it is
 written.
+
+## Writing a skill
+
+Start from [`_template/skill-template.md`](_template/skill-template.md): copy it to `<skill-name>/SKILL.md`, fill it in, and delete the format-rules comment at the top. In Obsidian it is under Insert template. The one rule that bites is the frontmatter: `name` and `description` each on one line, with the description in double quotes. An unquoted `: ` inside it is invalid YAML. Claude Code forgives that, Obsidian does not, and shows the whole header as red raw text.

@@ -1,6 +1,6 @@
 ---
 name: interface-review
-description: Use when reviewing, auditing, or polishing a web interface — a screen, flow, component, PR diff, or Figma frame — for accessibility, layout, writing, typography, and UI polish (radius, shadows, motion, icons). Produces one consolidated, severity-ranked findings table with file:line evidence and a Block / Needs changes / Approve verdict. Read-only unless asked to implement. Modes: `quick` or `full` (default).
+description: "Use when reviewing, auditing, or polishing a web interface — a screen, flow, component, PR diff, or Figma frame — for accessibility, layout, writing, typography, and UI polish (radius, shadows, motion, icons). Produces one consolidated, severity-ranked findings table with file:line evidence and a Block / Needs changes / Approve verdict. Read-only unless asked to implement. Modes: `quick` or `full` (default)."
 ---
 
 # Interface review
