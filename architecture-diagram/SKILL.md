@@ -1,6 +1,6 @@
 ---
 name: architecture-diagram
-description: Use when asked to draw an architecture, system, pipeline or data-flow diagram in Figma as boxes and arrows — zones, nodes (steps, stored data, a person's decision, outside systems), labelled arrows, a legend and notes. Asks first whether it goes in a FigJam board or a Figma design file, then builds from one spec: the bundled builder and the Figma `use_figma` tool for a design file, Mermaid through `generate_diagram` for FigJam.
+description: "Use when asked to draw an architecture, system, pipeline or data-flow diagram in Figma as boxes and arrows — zones, nodes (steps, stored data, a person's decision, outside systems), labelled arrows, a legend and notes. Asks first whether it goes in a FigJam board or a Figma design file, then builds from one spec: the bundled builder and the Figma `use_figma` tool for a design file, Mermaid through `generate_diagram` for FigJam."
 ---
 
 # Architecture diagram (Figma)
