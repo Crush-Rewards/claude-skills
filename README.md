@@ -9,6 +9,7 @@ Symlinked into `~/.claude/skills/` so they load in every project.
 | `ontology-generation` | Domain ontologies and multi-taxonomy crosswalks — objects/links, facets, identity bindings. |
 | `shipyard` | Decomposing a large refactor into parallel git-worktree drydocks against versioned contracts. |
 | `user-audit` | Investigating why a Crush user is in review/banned — evidence gathering and false-positive judgement. |
+| `user-audit-shareable` | The same investigation, for write-ups that will be shared (Slack, Linear, tickets) or automated runs: users named by admin link, no customer identifiers. |
 | `interface-review` | One consolidated UI review — a11y, layout, writing, type, polish — ranked findings and a verdict. Annotates Figma frames. |
 | `architecture-diagram` | A system drawn as nodes and arrows in Figma, from one spec. Asks first: a design file (zones, cylinders for stored data, labelled arrows, a legend; bundles the builder) or a FigJam board (the same spec as Mermaid through `generate_diagram`). |
 
